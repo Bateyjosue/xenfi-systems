@@ -24,27 +24,14 @@ export function ExpenseForm({ expense, onClose, onSuccess }: ExpenseFormProps) {
   const updateExpense = useUpdateExpense();
   const { data: categories } = useCategories();
 
-  const [formData, setFormData] = useState<CreateExpenseDto>({
+  const [formData, setFormData] = useState<CreateExpenseDto>(() => ({
     amount: expense?.amount || 0,
     description: expense?.description || '',
     date: expense?.date ? expense.date.split('T')[0] : new Date().toISOString().split('T')[0],
     paymentMethod: expense?.paymentMethod || 'CARD',
     attachmentUrl: expense?.attachmentUrl || '',
     categoryId: expense?.categoryId || '',
-  });
-
-  useEffect(() => {
-    if (expense) {
-      setFormData({
-        amount: expense.amount,
-        description: expense.description || '',
-        date: expense.date.split('T')[0],
-        paymentMethod: expense.paymentMethod,
-        attachmentUrl: expense.attachmentUrl || '',
-        categoryId: expense.categoryId,
-      });
-    }
-  }, [expense]);
+  }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

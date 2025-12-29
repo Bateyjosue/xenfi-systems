@@ -53,7 +53,7 @@ export const useLogout = () => {
   return async () => {
     try {
       await api.post('/auth/logout');
-    } catch (error) {
+    } catch {
       // Continue with logout even if API call fails
     }
     logout();
