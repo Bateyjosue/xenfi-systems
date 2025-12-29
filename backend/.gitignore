@@ -4,4 +4,5 @@ dist/
 *.log
 .DS_Store
 
-./.npm-cache/
+.npm-cache/
+/public/api.http

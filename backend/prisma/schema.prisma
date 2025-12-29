@@ -71,4 +71,3 @@ enum PaymentMethod {
   MOBILE_MONEY
   OTHER
 }
-
