@@ -6,10 +6,12 @@ A full-stack expense and accounting management platform built for internal use a
 
 - **Backend**: Node.js + Express + TypeScript
 - **Frontend**: Next.js 16 (App Router) + React + TypeScript
-- **Database**: PostgreSQL (via Prisma ORM)
+- ** Database**: PostgreSQL (via Prisma ORM)
 - **State Management**: Zustand + React Query
 - **Styling**: TailwindCSS
-- **Authentication**: JWT-based authentication
+- **Authentication**: JWT-based authentication with HTTP-only cookies
+- **Deployment**: Vercel (Frontend) + Railway/Render (Backend)
+- **CI/CD**: GitHub Actions
 
 ## 📋 Features
 
@@ -28,8 +30,11 @@ A full-stack expense and accounting management platform built for internal use a
 - Zustand for lightweight state management
 - Prisma migrations for database schema management
 - Seed script for sample data
+- Audit trail tracking (createdBy, updatedBy)
+- Role-based access control (ADMIN/STAFF)
 - Error handling and validation
 - Clean code structure and separation of concerns
+- CI/CD pipeline with GitHub Actions
 
 ## 🚀 Getting Started
 
@@ -217,33 +222,140 @@ The application uses JWT (JSON Web Tokens) for authentication. After login/regis
 
 ## 🚢 Deployment
 
-### Backend Deployment
+This application is designed to be deployed with:
+- **Frontend**: Vercel (recommended)
+- **Backend**: Railway, Render, or Fly.io
+- **Database**: Neon.com (serverless PostgreSQL)
 
-The backend can be deployed to platforms like:
-- Railway
-- Render
-- Fly.io
-- Heroku
+### Database Setup (Neon.com)
 
-Set environment variables on your hosting platform:
-- `DATABASE_URL`
-- `JWT_SECRET`
-- `PORT`
-- `FRONTEND_URL` (your frontend URL)
+1. Create a free account at [Neon.com](https://neon.tech/)
+2. Create a new project
+3. Copy the connection string (looks like: `postgresql://user:password@ep-xyz.region.aws.neon.tech/neondb?sslmode=require`)
+4. Save it for backend deployment
+
+### Backend Deployment (Railway)
+
+[Railway](https://railway.app/) offers free tier and easy deployment:
+
+1. **Create Railway Account**
+   - Visit [railway.app](https://railway.app/)
+   - Sign up with GitHub
+
+2. **Create New Project**
+   - Click "New Project"
+   - Select "Deploy from GitHub repo"
+   - Choose your repository
+   - Select the `backend` directory as the root
+
+3. **Configure Environment Variables**
+   
+   In Railway project settings, add:
+   ```env
+   DATABASE_URL=postgresql://user:password@ep-xyz.region.aws.neon.tech/neondb?sslmode=require
+   JWT_SECRET=your-production-secret-min-32-characters-random
+   PORT=3001
+   NODE_ENV=production
+   FRONTEND_URL=https://your-app.vercel.app
+   ```
+
+4. **Set Build Configuration**
+   - Build Command: `npm install && npm run prisma:generate && npm run build`
+   - Start Command: `npm run prisma:migrate deploy && npm start`
+
+5. **Deploy**
+   - Railway will automatically deploy
+   - Copy your backend URL (e.g., `https://your-app.up.railway.app`)
+
+### Alternative: Backend Deployment (Render)
+
+1. Create account at [Render.com](https://render.com/)
+2. Click "New +" → "Web Service"
+3. Connect your GitHub repository
+4. Configure:
+   - **Name**: xenfi-backend
+   - **Root Directory**: `backend`
+   - **Environment**: Node
+   - **Build Command**: `npm install && npm run prisma:generate && npm run build`
+   - **Start Command**: `npm run prisma:migrate deploy && npm start`
+5. Add environment variables (same as Railway above)
+6. Click "Create Web Service"
 
 ### Frontend Deployment (Vercel)
 
-1. Push your code to GitHub
-2. Import project in Vercel
-3. Set environment variable: `NEXT_PUBLIC_API_URL` (your backend URL)
-4. Deploy
+1. **Push Code to GitHub**
+   ```bash
+   git add .
+   git commit -m "Ready for deployment"
+   git push origin main
+   ```
 
-### Database (Neon.com)
+2. **Deploy to Vercel**
+   - Visit [vercel.com](https://vercel.com/)
+   - Click "Add New Project"
+   - Import your GitHub repository
+   - Configure:
+     - **Framework Preset**: Next.js
+     - **Root Directory**: `frontend`
+     - **Build Command**: (auto-detected)
+     - **Output Directory**: (auto-detected)
 
-1. Create a new project on Neon.com
-2. Copy the connection string
-3. Update `DATABASE_URL` in backend `.env`
-4. Run migrations: `npm run prisma:migrate`
+3. **Set Environment Variables**
+   
+   In Vercel project settings → Environment Variables:
+   ```env
+   NEXT_PUBLIC_API_URL=https://your-backend.up.railway.app
+   ```
+
+4. **Deploy**
+   - Vercel will automatically build and deploy
+   - Your app will be live at `https://your-app.vercel.app`
+
+5. **Update Backend CORS**
+   - Go back to Railway/Render
+   - Update `FRONTEND_URL` environment variable with your Vercel URL
+   - Redeploy backend
+
+### Post-Deployment Steps
+
+1. **Run Database Migrations** (if not automated)
+   ```bash
+   # SSH into your backend or use Railway CLI
+   npm run prisma:migrate deploy
+   ```
+
+2. **Seed Database** (optional)
+   ```bash
+   npm run prisma:seed
+   ```
+
+3. **Test the Application**
+   - Visit your Vercel URL
+   - Create a new account or login with seeded credentials
+   - Test all CRUD operations
+
+### Environment Variables Reference
+
+#### Backend (.env)
+```env
+DATABASE_URL=postgresql://user:password@host:port/database?sslmode=require
+JWT_SECRET=min-32-char-random-secret
+PORT=3001
+NODE_ENV=production
+FRONTEND_URL=https://your-app.vercel.app
+```
+
+#### Frontend (.env.local)
+```env
+NEXT_PUBLIC_API_URL=https://your-backend.up.railway.app
+```
+
+### Continuous Deployment
+
+Both Vercel and Railway support automatic deployments:
+- **Push to main branch** → triggers automatic deployment
+- **GitHub Actions** runs CI checks before deployment
+- **Pipeline**: Lint → Type Check → Build → Deploy
 
 ## 🔒 Security Notes
 
@@ -261,18 +373,28 @@ Set environment variables on your hosting platform:
 - Independent scaling
 - Easier to maintain and test
 - Allows different deployment strategies
+- Backend can serve multiple clients (web, mobile, etc.)
+
+### Why JWT with HTTP-only Cookies?
+- Secure authentication (XSS protection)
+- No CSRF tokens needed with SameSite cookies
+- Production-ready alternative to NextAuth
+- Full control over auth logic
+- Simpler for this use case than full OAuth
 
 ### Why React Query?
 - Automatic caching and refetching
 - Optimistic updates
 - Built-in loading/error states
 - Reduces boilerplate
+- Perfect for REST APIs
 
 ### Why Zustand?
 - Lightweight alternative to Redux
 - Simple API
 - Good TypeScript support
 - Perfect for auth state
+- No provider boilerplate
 
 ### Known Limitations
 - No file upload for receipts (attachment URL only)
