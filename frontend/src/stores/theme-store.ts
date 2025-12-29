@@ -4,11 +4,12 @@ import { persist } from "zustand/middleware";
 interface ThemeState {
   theme: "light" | "dark";
   toggleTheme: () => void;
+  initializeTheme: () => void;
 }
 
 export const useThemeStore = create<ThemeState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       theme: "light",
       toggleTheme: () => {
         set((state) => {
@@ -21,6 +22,15 @@ export const useThemeStore = create<ThemeState>()(
           }
           return { theme: newTheme };
         });
+      },
+      initializeTheme: () => {
+        if (typeof window !== "undefined") {
+          const currentTheme = get().theme;
+          document.documentElement.classList.toggle(
+            "dark",
+            currentTheme === "dark"
+          );
+        }
       },
     }),
     {

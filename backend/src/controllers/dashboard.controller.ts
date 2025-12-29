@@ -7,34 +7,22 @@ export const getDashboardStats: RequestHandler = async (req, res) => {
     const userId = (req as AuthRequest).userId!;
     const { startDate, endDate, categoryId } = req.query;
 
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const endOfMonth = new Date(
-      now.getFullYear(),
-      now.getMonth() + 1,
-      0,
-      23,
-      59,
-      59
-    );
-
-    const dateFilter = {
-      date: {
-        gte: startDate ? new Date(startDate as string) : startOfMonth,
-        lte: endDate ? new Date(endDate as string) : endOfMonth,
-      },
-    };
-
     const where: any = {
       userId,
-      ...dateFilter,
     };
+
+    // Only apply date filters if explicitly provided
+    if (startDate || endDate) {
+      where.date = {};
+      if (startDate) where.date.gte = new Date(startDate as string);
+      if (endDate) where.date.lte = new Date(endDate as string);
+    }
 
     if (categoryId) {
       where.categoryId = categoryId as string;
     }
 
-    // Total expenses for current month
+    // Total expenses for the period
     const totalExpenses = await prisma.expense.aggregate({
       where,
       _sum: {
@@ -84,14 +72,18 @@ export const getDashboardStats: RequestHandler = async (req, res) => {
       take: 10,
     });
 
+    // Calculate date range for display
+    const now = new Date();
+    const dateRange = {
+      start: startDate ? new Date(startDate as string) : new Date(now.getFullYear(), 0, 1), // Start of current year if no filter
+      end: endDate ? new Date(endDate as string) : now,
+    };
+
     res.json({
       totalExpenses: totalExpenses._sum.amount || 0,
       categoryBreakdown,
       recentExpenses,
-      dateRange: {
-        start: dateFilter.date.gte,
-        end: dateFilter.date.lte,
-      },
+      dateRange,
     });
   } catch (error) {
     console.error("Get dashboard stats error:", error);

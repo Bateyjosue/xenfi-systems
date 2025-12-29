@@ -70,11 +70,6 @@ export function Navbar() {
                   Categories
                 </Link>
               )}
-              {user?.role === 'ADMIN' && (
-                <Link href="/admin" className={linkClass('/admin')}>
-                  Admin
-                </Link>
-              )}
             </div>
           </div>
           {/* Desktop User Menu */}
@@ -158,18 +153,18 @@ export function Navbar() {
         <div className="sm:hidden fixed inset-0 z-50">
           {/* Semi-transparent backdrop */}
           <div
-            className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm"
+            className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm mobile-menu-backdrop"
             onClick={() => setMobileMenuOpen(false)}
             aria-hidden="true"
           />
           
           {/* Menu content */}
-          <div className="fixed inset-0 bg-white bg-opacity-95 backdrop-blur-md flex flex-col">
+          <div className="fixed inset-0 bg-white dark:bg-gray-800 bg-opacity-95 backdrop-blur-md flex flex-col mobile-menu-content">
             {/* Close button */}
             <div className="flex justify-end p-4">
               <button
                 onClick={() => setMobileMenuOpen(false)}
-                className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+                className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-300 hover:text-gray-500 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
               >
                 <span className="sr-only">Close menu</span>
                 <svg
@@ -194,14 +189,22 @@ export function Navbar() {
               <Link
                 href="/dashboard"
                 onClick={() => setMobileMenuOpen(false)}
-                className={mobileLinkClass('/dashboard')}
+                className={`${
+                  isActive('/dashboard')
+                    ? 'bg-indigo-50 dark:bg-indigo-900 border-indigo-500 text-indigo-700 dark:text-indigo-300'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-200'
+                } block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
               >
                 Dashboard
               </Link>
               <Link
                 href="/expenses"
                 onClick={() => setMobileMenuOpen(false)}
-                className={mobileLinkClass('/expenses')}
+                className={`${
+                  isActive('/expenses')
+                    ? 'bg-indigo-50 dark:bg-indigo-900 border-indigo-500 text-indigo-700 dark:text-indigo-300'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-200'
+                } block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
               >
                 Expenses
               </Link>
@@ -209,44 +212,39 @@ export function Navbar() {
                 <Link
                   href="/categories"
                   onClick={() => setMobileMenuOpen(false)}
-                  className={mobileLinkClass('/categories')}
+                  className={`${
+                    isActive('/categories')
+                      ? 'bg-indigo-50 dark:bg-indigo-900 border-indigo-500 text-indigo-700 dark:text-indigo-300'
+                      : 'border-transparent text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-200'
+                  } block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
                 >
                   Categories
-                </Link>
-              )}
-              {user?.role === 'ADMIN' && (
-                <Link
-                  href="/admin"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={mobileLinkClass('/admin')}
-                >
-                  Admin
                 </Link>
               )}
               {/* Dark Mode Toggle in Mobile Menu */}
               <button
                 onClick={toggleTheme}
-                className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
+                className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-200"
               >
                 {theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode'}
               </button>
             </div>
 
             {/* User section */}
-            <div className="px-4 pt-4 pb-6 border-t border-gray-200">
+            <div className="px-4 pt-4 pb-6 border-t border-gray-200 dark:border-gray-700">
               <div className="flex items-center mb-4">
                 <div className="shrink-0">
-                  <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
-                    <span className="text-indigo-600 font-medium text-sm">
+                  <div className="h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-800 flex items-center justify-center">
+                    <span className="text-indigo-600 dark:text-indigo-300 font-medium text-sm">
                       {(user?.name || user?.email || 'U').charAt(0).toUpperCase()}
                     </span>
                   </div>
                 </div>
                 <div className="ml-3">
-                  <div className="text-base font-medium text-gray-800">
+                  <div className="text-base font-medium text-gray-800 dark:text-gray-200">
                     {user?.name || 'User'}
                   </div>
-                  <div className="text-sm font-medium text-gray-500">
+                  <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
                     {user?.email}
                   </div>
                 </div>

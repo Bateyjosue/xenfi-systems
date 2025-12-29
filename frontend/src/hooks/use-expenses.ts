@@ -38,11 +38,10 @@ export const useCreateExpense = () => {
       return response.data;
     },
     onSuccess: () => {
-      // Invalidate all expenses queries
       queryClient.invalidateQueries({ queryKey: ["expenses"] });
-      // Invalidate all dashboard queries (with any params)
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
-      // Force refetch dashboard stats
+      queryClient.invalidateQueries({ queryKey: ["admin", "stats"] });
+      // Force immediate refetch of dashboard stats
       queryClient.refetchQueries({ queryKey: ["dashboard", "stats"] });
     },
   });
@@ -65,6 +64,8 @@ export const useUpdateExpense = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["expenses"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "stats"] });
+      // Force immediate refetch of dashboard stats
       queryClient.refetchQueries({ queryKey: ["dashboard", "stats"] });
     },
   });
@@ -80,6 +81,8 @@ export const useDeleteExpense = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["expenses"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "stats"] });
+      // Force immediate refetch of dashboard stats
       queryClient.refetchQueries({ queryKey: ["dashboard", "stats"] });
     },
   });

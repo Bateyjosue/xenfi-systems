@@ -42,6 +42,8 @@ export const useAdminStats = () => {
       const response = await api.get('/admin/stats');
       return response.data;
     },
+    staleTime: 0, // Always refetch when invalidated
+    refetchOnWindowFocus: true,
   });
 };
 

@@ -30,5 +30,7 @@ export const useDashboardStats = (params?: GetDashboardParams) => {
       const response = await api.get("/dashboard/stats", { params });
       return response.data;
     },
+    staleTime: 0, // Always refetch when invalidated
+    refetchOnWindowFocus: true,
   });
 };
