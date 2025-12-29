@@ -1,12 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useCategories, useDeleteCategory } from '@/hooks/use-categories';
+import { useAuthStore } from '@/stores/auth-store';
 import { Category } from '@/types';
 import { CategoryForm } from '@/components/categories/category-form';
 import { ConfirmModal } from '@/components/common/confirm-modal';
 
 export default function CategoriesPage() {
+  const router = useRouter();
+  const user = useAuthStore((state) => state.user);
   const [showForm, setShowForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; categoryId: string | null }>({
@@ -16,6 +20,16 @@ export default function CategoriesPage() {
 
   const { data: categories, isLoading } = useCategories();
   const deleteCategory = useDeleteCategory();
+
+  useEffect(() => {
+    if (user && user.role !== 'ADMIN') {
+      router.push('/dashboard');
+    }
+  }, [user, router]);
+
+  if (user?.role !== 'ADMIN') {
+    return null;
+  }
 
   const handleDeleteClick = (id: string) => {
     setDeleteConfirm({ isOpen: true, categoryId: id });

@@ -1,8 +1,8 @@
-import { Response } from "express";
+import { Response, RequestHandler } from "express";
 import { AuthRequest, CreateCategoryDto, UpdateCategoryDto } from "../types";
 import { prisma } from "../utils/db";
 
-export const getCategories = async (req: AuthRequest, res: Response) => {
+export const getCategories: RequestHandler = async (req, res) => {
   try {
     const categories = await prisma.category.findMany({
       orderBy: {
@@ -17,7 +17,7 @@ export const getCategories = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export const getCategory = async (req: AuthRequest, res: Response) => {
+export const getCategory: RequestHandler = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -36,12 +36,12 @@ export const getCategory = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export const createCategory = async (
-  req: AuthRequest<{}, {}, CreateCategoryDto>,
-  res: Response
+export const createCategory: RequestHandler = async (
+  req,
+  res
 ) => {
   try {
-    const { name, description } = req.body;
+    const { name, description } = req.body as CreateCategoryDto;
 
     if (!name) {
       return res.status(400).json({ error: "Category name is required" });
@@ -70,13 +70,13 @@ export const createCategory = async (
   }
 };
 
-export const updateCategory = async (
-  req: AuthRequest<{ id: string }, {}, UpdateCategoryDto>,
-  res: Response
+export const updateCategory: RequestHandler = async (
+  req,
+  res
 ) => {
   try {
     const { id } = req.params;
-    const { name, description } = req.body;
+    const { name, description } = req.body as UpdateCategoryDto;
 
     // Check if category exists
     const existingCategory = await prisma.category.findUnique({
@@ -114,7 +114,7 @@ export const updateCategory = async (
   }
 };
 
-export const deleteCategory = async (req: AuthRequest, res: Response) => {
+export const deleteCategory: RequestHandler = async (req, res) => {
   try {
     const { id } = req.params;
 

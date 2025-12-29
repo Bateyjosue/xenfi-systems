@@ -1,11 +1,11 @@
-import { Response } from "express";
+import { Response, RequestHandler } from "express";
 import { AuthRequest, CreateExpenseDto, UpdateExpenseDto } from "../types";
 import { prisma } from "../utils/db";
 
-export const getExpenses = async (req: AuthRequest, res: Response) => {
+export const getExpenses: RequestHandler = async (req, res) => {
   try {
     const { startDate, endDate, categoryId } = req.query;
-    const userId = req.userId!;
+    const userId = (req as AuthRequest).userId!;
 
     const where: any = { userId };
 
@@ -43,10 +43,10 @@ export const getExpenses = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export const getExpense = async (req: AuthRequest, res: Response) => {
+export const getExpense: RequestHandler = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.userId!;
+    const userId = (req as AuthRequest).userId!;
 
     const expense = await prisma.expense.findFirst({
       where: {
@@ -76,12 +76,12 @@ export const getExpense = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export const createExpense = async (
-  req: AuthRequest<{}, {}, CreateExpenseDto>,
-  res: Response
+export const createExpense: RequestHandler = async (
+  req,
+  res
 ) => {
   try {
-    const userId = req.userId!;
+    const userId = (req as AuthRequest).userId!;
     const {
       amount,
       description,
@@ -89,7 +89,7 @@ export const createExpense = async (
       paymentMethod,
       attachmentUrl,
       categoryId,
-    } = req.body;
+    } = req.body as CreateExpenseDto;
 
     if (!amount || !categoryId || !paymentMethod) {
       return res
@@ -135,13 +135,13 @@ export const createExpense = async (
   }
 };
 
-export const updateExpense = async (
-  req: AuthRequest<{ id: string }, {}, UpdateExpenseDto>,
-  res: Response
+export const updateExpense: RequestHandler = async (
+  req,
+  res
 ) => {
   try {
     const { id } = req.params;
-    const userId = req.userId!;
+    const userId = (req as AuthRequest).userId!;
     const {
       amount,
       description,
@@ -149,7 +149,7 @@ export const updateExpense = async (
       paymentMethod,
       attachmentUrl,
       categoryId,
-    } = req.body;
+    } = req.body as UpdateExpenseDto;
 
     // Check if expense exists and belongs to user
     const existingExpense = await prisma.expense.findFirst({
@@ -204,10 +204,10 @@ export const updateExpense = async (
   }
 };
 
-export const deleteExpense = async (req: AuthRequest, res: Response) => {
+export const deleteExpense: RequestHandler = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.userId!;
+    const userId = (req as AuthRequest).userId!;
 
     // Check if expense exists and belongs to user
     const expense = await prisma.expense.findFirst({

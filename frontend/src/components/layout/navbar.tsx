@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLogout } from '@/hooks/use-auth';
 import { useAuthStore } from '@/stores/auth-store';
+import { useThemeStore } from '@/stores/theme-store';
 import { useRouter } from 'next/navigation';
 
 export function Navbar() {
@@ -13,6 +14,7 @@ export function Navbar() {
   const user = useAuthStore((state) => state.user);
   const router = useRouter();
   const pathname = usePathname();
+  const { theme, toggleTheme } = useThemeStore();
 
   const handleLogout = () => {
     logout();
@@ -31,8 +33,8 @@ export function Navbar() {
     const active = isActive(path);
     return `${
       active
-        ? 'border-indigo-500 text-gray-900'
-        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+        ? 'border-indigo-500 text-gray-900 dark:text-gray-100'
+        : 'border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-200'
     } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`;
   };
 
@@ -46,12 +48,12 @@ export function Navbar() {
   };
 
   return (
-    <nav className="bg-white shadow-lg">
+    <nav className="bg-white dark:bg-gray-800 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex">
             <div className="shrink-0 flex items-center">
-              <Link href="/dashboard" className="text-xl font-bold text-indigo-600">
+              <Link href="/dashboard" className="text-xl font-bold text-indigo-600 dark:text-indigo-400">
                 XenFi Systems
               </Link>
             </div>
@@ -63,15 +65,38 @@ export function Navbar() {
               <Link href="/expenses" className={linkClass('/expenses')}>
                 Expenses
               </Link>
-              <Link href="/categories" className={linkClass('/categories')}>
-                Categories
-              </Link>
+              {user?.role === 'ADMIN' && (
+                <Link href="/categories" className={linkClass('/categories')}>
+                  Categories
+                </Link>
+              )}
+              {user?.role === 'ADMIN' && (
+                <Link href="/admin" className={linkClass('/admin')}>
+                  Admin
+                </Link>
+              )}
             </div>
           </div>
           {/* Desktop User Menu */}
-          <div className="hidden sm:flex sm:items-center">
+          <div className="hidden sm:flex sm:items-center sm:space-x-4">
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700 transition-colors"
+              aria-label="Toggle dark mode"
+            >
+              {theme === 'dark' ? (
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              ) : (
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+              )}
+            </button>
             <div className="shrink-0">
-              <span className="text-sm text-gray-700 mr-4">
+              <span className="text-sm text-gray-700 dark:text-gray-300 mr-4">
                 {user?.name || user?.email}
               </span>
               <button
@@ -180,13 +205,31 @@ export function Navbar() {
               >
                 Expenses
               </Link>
-              <Link
-                href="/categories"
-                onClick={() => setMobileMenuOpen(false)}
-                className={mobileLinkClass('/categories')}
+              {user?.role === 'ADMIN' && (
+                <Link
+                  href="/categories"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={mobileLinkClass('/categories')}
+                >
+                  Categories
+                </Link>
+              )}
+              {user?.role === 'ADMIN' && (
+                <Link
+                  href="/admin"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={mobileLinkClass('/admin')}
+                >
+                  Admin
+                </Link>
+              )}
+              {/* Dark Mode Toggle in Mobile Menu */}
+              <button
+                onClick={toggleTheme}
+                className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
               >
-                Categories
-              </Link>
+                {theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode'}
+              </button>
             </div>
 
             {/* User section */}

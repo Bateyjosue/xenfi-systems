@@ -1,11 +1,11 @@
-import { Response, NextFunction } from "express";
+import { Response, NextFunction, RequestHandler } from "express";
 import { AuthRequest } from "../types";
 import { verifyToken } from "../utils/jwt";
 
-export const authenticate = (
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction
+export const authenticate: RequestHandler = (
+  req,
+  res,
+  next
 ) => {
   try {
     // Try to get token from cookie first, then fallback to Authorization header
@@ -24,8 +24,8 @@ export const authenticate = (
 
     const decoded = verifyToken(token);
 
-    req.userId = decoded.userId;
-    req.user = {
+    (req as AuthRequest).userId = decoded.userId;
+    (req as AuthRequest).user = {
       id: decoded.userId,
       email: decoded.email,
       role: decoded.role,
@@ -37,12 +37,12 @@ export const authenticate = (
   }
 };
 
-export const requireAdmin = (
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction
+export const requireAdmin: RequestHandler = (
+  req,
+  res,
+  next
 ) => {
-  if (req.user?.role !== "ADMIN") {
+  if ((req as AuthRequest).user?.role !== "ADMIN") {
     return res.status(403).json({ error: "Admin access required" });
   }
   next();

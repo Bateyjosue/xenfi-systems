@@ -1,10 +1,10 @@
-import { Response } from "express";
+import { Response, RequestHandler } from "express";
 import { AuthRequest } from "../types";
 import { prisma } from "../utils/db";
 
-export const getDashboardStats = async (req: AuthRequest, res: Response) => {
+export const getDashboardStats: RequestHandler = async (req, res) => {
   try {
-    const userId = req.userId!;
+    const userId = (req as AuthRequest).userId!;
     const { startDate, endDate, categoryId } = req.query;
 
     const now = new Date();

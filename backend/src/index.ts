@@ -1,7 +1,9 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import session from "express-session";
 import dotenv from "dotenv";
+// import passport from "./utils/google-auth";
 
 dotenv.config();
 
@@ -17,6 +19,15 @@ app.use(
   })
 );
 app.use(cookieParser());
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "your-session-secret",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+// app.use(passport.initialize());
+// app.use(passport.session());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -30,11 +41,13 @@ import authRoutes from "./routes/auth.routes";
 import expenseRoutes from "./routes/expense.routes";
 import categoryRoutes from "./routes/category.routes";
 import dashboardRoutes from "./routes/dashboard.routes";
+import adminRoutes from "./routes/admin.routes";
 
 app.use("/api/auth", authRoutes);
 app.use("/api/expenses", expenseRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Error handling middleware
 app.use(

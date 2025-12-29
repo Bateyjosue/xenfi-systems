@@ -1,15 +1,15 @@
-import { Response } from "express";
+import { Response, Request, RequestHandler } from "express";
 import bcrypt from "bcryptjs";
 import { AuthRequest, LoginDto, RegisterDto } from "../types";
 import { prisma } from "../utils/db";
 import { generateToken } from "../utils/jwt";
 
-export const register = async (
-  req: AuthRequest<{}, {}, RegisterDto>,
+export const register: RequestHandler = async (
+  req: Request,
   res: Response
 ) => {
   try {
-    const { email, password, name } = req.body;
+    const { email, password, name } = req.body as RegisterDto;
 
     if (!email || !password) {
       return res.status(400).json({ error: "Email and password are required" });
@@ -69,12 +69,12 @@ export const register = async (
   }
 };
 
-export const login = async (
-  req: AuthRequest<{}, {}, LoginDto>,
+export const login: RequestHandler = async (
+  req: Request,
   res: Response
 ) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = req.body as LoginDto;
 
     if (!email || !password) {
       return res.status(400).json({ error: "Email and password are required" });
@@ -128,10 +128,11 @@ export const login = async (
   }
 };
 
-export const getMe = async (req: AuthRequest, res: Response) => {
+export const getMe: RequestHandler = async (req, res) => {
   try {
+    const authReq = req as AuthRequest;
     const user = await prisma.user.findUnique({
-      where: { id: req.userId! },
+      where: { id: authReq.userId! },
       select: {
         id: true,
         email: true,
@@ -153,7 +154,10 @@ export const getMe = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export const logout = async (req: AuthRequest, res: Response) => {
+export const logout: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
   try {
     // Clear the token cookie
     res.clearCookie("token", {
