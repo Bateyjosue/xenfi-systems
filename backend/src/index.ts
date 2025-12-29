@@ -42,12 +42,14 @@ import expenseRoutes from "./routes/expense.routes";
 import categoryRoutes from "./routes/category.routes";
 import dashboardRoutes from "./routes/dashboard.routes";
 import adminRoutes from "./routes/admin.routes";
+import uploadRoutes from './routes/upload.routes';
 
 app.use("/api/auth", authRoutes);
 app.use("/api/expenses", expenseRoutes);
 app.use("/api/categories", categoryRoutes);
-app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/stats", dashboardRoutes);
 app.use("/api/admin", adminRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Error handling middleware
 app.use(

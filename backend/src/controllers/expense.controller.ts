@@ -1,11 +1,27 @@
-import { Response, RequestHandler } from "express";
+import { RequestHandler } from "express";
 import { AuthRequest, CreateExpenseDto, UpdateExpenseDto } from "../types";
 import { prisma } from "../utils/db";
+import redis from "../config/redis";
+
+const CACHE_TTL = 3600; // 1 hour
 
 export const getExpenses: RequestHandler = async (req, res) => {
   try {
     const { startDate, endDate, categoryId } = req.query;
     const userId = (req as AuthRequest).userId!;
+
+    const cacheKey = `expenses:${userId}:${JSON.stringify(req.query)}`;
+
+    // Try to get from cache
+    try {
+      const cachedData = await redis.get(cacheKey);
+      if (cachedData) {
+        return res.json(JSON.parse(cachedData));
+      }
+    } catch (redisError) {
+      console.error("Redis get error:", redisError);
+      // Fallback to DB if redis fails
+    }
 
     const where: any = { userId };
 
@@ -50,6 +66,13 @@ export const getExpenses: RequestHandler = async (req, res) => {
       },
     });
 
+    // Set cache
+    try {
+      await redis.setex(cacheKey, CACHE_TTL, JSON.stringify(expenses));
+    } catch (redisError) {
+      console.error("Redis set error:", redisError);
+    }
+
     res.json(expenses);
   } catch (error) {
     console.error("Get expenses error:", error);
@@ -87,6 +110,17 @@ export const getExpense: RequestHandler = async (req, res) => {
   } catch (error) {
     console.error("Get expense error:", error);
     res.status(500).json({ error: "Failed to fetch expense" });
+  }
+};
+
+const invalidateUserCache = async (userId: string) => {
+  try {
+    const keys = await redis.keys(`expenses:${userId}:*`);
+    if (keys.length > 0) {
+      await redis.del(...keys);
+    }
+  } catch (error) {
+    console.error("Redis invalidation error:", error);
   }
 };
 
@@ -147,8 +181,17 @@ export const createExpense: RequestHandler = async (
             email: true,
           },
         },
+        updatedBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
       },
     });
+
+    await invalidateUserCache(userId);
 
     res.status(201).json(expense);
   } catch (error) {
@@ -234,6 +277,8 @@ export const updateExpense: RequestHandler = async (
       },
     });
 
+    await invalidateUserCache(userId);
+
     res.json(expense);
   } catch (error) {
     console.error("Update expense error:", error);
@@ -261,6 +306,8 @@ export const deleteExpense: RequestHandler = async (req, res) => {
     await prisma.expense.delete({
       where: { id },
     });
+
+    await invalidateUserCache(userId);
 
     res.json({ message: "Expense deleted successfully" });
   } catch (error) {
