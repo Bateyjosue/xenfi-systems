@@ -30,6 +30,20 @@ export const getExpenses: RequestHandler = async (req, res) => {
             name: true,
           },
         },
+        createdBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        updatedBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
       },
       orderBy: {
         date: "desc",
@@ -115,6 +129,7 @@ export const createExpense: RequestHandler = async (
         attachmentUrl,
         categoryId,
         userId,
+        createdById: userId,
       },
       include: {
         category: true,
@@ -123,6 +138,13 @@ export const createExpense: RequestHandler = async (
             id: true,
             email: true,
             name: true,
+          },
+        },
+        createdBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
           },
         },
       },
@@ -181,6 +203,7 @@ export const updateExpense: RequestHandler = async (
     if (paymentMethod !== undefined) updateData.paymentMethod = paymentMethod;
     if (attachmentUrl !== undefined) updateData.attachmentUrl = attachmentUrl;
     if (categoryId !== undefined) updateData.categoryId = categoryId;
+    updateData.updatedById = userId; // Track who updated
 
     const expense = await prisma.expense.update({
       where: { id },
@@ -192,6 +215,20 @@ export const updateExpense: RequestHandler = async (
             id: true,
             email: true,
             name: true,
+          },
+        },
+        createdBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        updatedBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
           },
         },
       },

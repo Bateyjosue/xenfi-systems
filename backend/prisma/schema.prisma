@@ -22,7 +22,13 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
-  expenses  Expense[]
+  expenses  Expense[] @relation("ExpenseUser")
+  
+  // Audit trail relations
+  expensesCreated   Expense[]  @relation("ExpenseCreatedBy")
+  expensesUpdated   Expense[]  @relation("ExpenseUpdatedBy")
+  categoriesCreated Category[] @relation("CategoryCreatedBy")
+  categoriesUpdated Category[] @relation("CategoryUpdatedBy")
   
   @@map("users")
 }
@@ -41,6 +47,12 @@ model Category {
   
   expenses    Expense[]
   
+  // Audit trail
+  createdById String?
+  createdBy   User?   @relation("CategoryCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedById String?
+  updatedBy   User?   @relation("CategoryUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  
   @@map("categories")
 }
 
@@ -56,10 +68,16 @@ model Expense {
   category      Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   
   userId        String
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User          @relation("ExpenseUser", fields: [userId], references: [id], onDelete: Cascade)
   
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+  
+  // Audit trail
+  createdById   String?
+  createdBy     User?         @relation("ExpenseCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedById   String?
+  updatedBy     User?         @relation("ExpenseUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
   
   @@map("expenses")
 }

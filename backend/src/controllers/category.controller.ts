@@ -41,6 +41,7 @@ export const createCategory: RequestHandler = async (
   res
 ) => {
   try {
+    const userId = (req as AuthRequest).userId!;
     const { name, description } = req.body as CreateCategoryDto;
 
     if (!name) {
@@ -60,6 +61,7 @@ export const createCategory: RequestHandler = async (
       data: {
         name,
         description,
+        createdById: userId,
       },
     });
 
@@ -101,6 +103,7 @@ export const updateCategory: RequestHandler = async (
     const updateData: any = {};
     if (name !== undefined) updateData.name = name;
     if (description !== undefined) updateData.description = description;
+    updateData.updatedById = (req as AuthRequest).userId!; // Track who updated
 
     const category = await prisma.category.update({
       where: { id },

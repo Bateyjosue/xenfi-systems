@@ -42,6 +42,7 @@ async function main() {
       create: {
         name: "Office Supplies",
         description: "Stationery, paper, pens, etc.",
+        createdById: admin.id,
       },
     }),
     prisma.category.upsert({
@@ -50,6 +51,7 @@ async function main() {
       create: {
         name: "Travel",
         description: "Transportation, accommodation, meals",
+        createdById: admin.id,
       },
     }),
     prisma.category.upsert({
@@ -58,6 +60,7 @@ async function main() {
       create: {
         name: "Meals",
         description: "Food and beverages",
+        createdById: admin.id,
       },
     }),
     prisma.category.upsert({
@@ -66,6 +69,7 @@ async function main() {
       create: {
         name: "Utilities",
         description: "Electricity, water, internet, etc.",
+        createdById: admin.id,
       },
     }),
     prisma.category.upsert({
@@ -74,6 +78,7 @@ async function main() {
       create: {
         name: "Software",
         description: "Software licenses and subscriptions",
+        createdById: admin.id,
       },
     }),
   ]);
@@ -93,6 +98,7 @@ async function main() {
         paymentMethod: "CARD",
         categoryId: categories[0].id,
         userId: admin.id,
+        createdById: admin.id,
       },
     }),
     prisma.expense.create({
@@ -103,6 +109,7 @@ async function main() {
         paymentMethod: "CARD",
         categoryId: categories[2].id,
         userId: staff.id,
+        createdById: staff.id,
       },
     }),
     prisma.expense.create({
@@ -113,6 +120,7 @@ async function main() {
         paymentMethod: "BANK_TRANSFER",
         categoryId: categories[3].id,
         userId: admin.id,
+        createdById: admin.id,
       },
     }),
     prisma.expense.create({
@@ -123,6 +131,7 @@ async function main() {
         paymentMethod: "CARD",
         categoryId: categories[4].id,
         userId: admin.id,
+        createdById: admin.id,
       },
     }),
     prisma.expense.create({
@@ -133,6 +142,7 @@ async function main() {
         paymentMethod: "MOBILE_MONEY",
         categoryId: categories[1].id,
         userId: staff.id,
+        createdById: staff.id,
       },
     }),
   ]);
