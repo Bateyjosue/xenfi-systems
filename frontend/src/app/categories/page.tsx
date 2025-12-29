@@ -64,7 +64,7 @@ export default function CategoriesPage() {
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="inline-flex items-center px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors"
         >
           Add Category
         </button>
@@ -102,7 +102,7 @@ export default function CategoriesPage() {
             categories.map((category) => (
               <div
                 key={category.id}
-                className="bg-white shadow rounded-lg p-6 hover:shadow-md transition-shadow"
+                className="bg-white border border-gray-200 rounded-lg p-6 hover:border-gray-300 transition-colors"
               >
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   {category.name}
