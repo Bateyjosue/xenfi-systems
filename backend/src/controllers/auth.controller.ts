@@ -51,9 +51,17 @@ export const register = async (
       role: user.role,
     });
 
+    // Set HTTP-only cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: "/",
+    });
+
     res.status(201).json({
       user,
-      token,
     });
   } catch (error) {
     console.error("Register error:", error);
@@ -95,6 +103,15 @@ export const login = async (
       role: user.role,
     });
 
+    // Set HTTP-only cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: "/",
+    });
+
     res.json({
       user: {
         id: user.id,
@@ -104,7 +121,6 @@ export const login = async (
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       },
-      token,
     });
   } catch (error) {
     console.error("Login error:", error);
@@ -134,5 +150,22 @@ export const getMe = async (req: AuthRequest, res: Response) => {
   } catch (error) {
     console.error("Get me error:", error);
     res.status(500).json({ error: "Failed to get user" });
+  }
+};
+
+export const logout = async (req: AuthRequest, res: Response) => {
+  try {
+    // Clear the token cookie
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+    });
+
+    res.json({ message: "Logged out successfully" });
+  } catch (error) {
+    console.error("Logout error:", error);
+    res.status(500).json({ error: "Failed to logout" });
   }
 };

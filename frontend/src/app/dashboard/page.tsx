@@ -97,7 +97,7 @@ export default function DashboardPage() {
           <div className="mb-6 bg-white overflow-hidden shadow rounded-lg">
             <div className="p-5">
               <div className="flex items-center">
-                <div className="flex-shrink-0">
+                <div>
                   <div className="text-2xl font-bold text-indigo-600">
                     ${stats.totalExpenses.toFixed(2)}
                   </div>
@@ -196,7 +196,7 @@ export default function DashboardPage() {
                                 {format(new Date(expense.date), 'MMM d, yyyy')}
                               </p>
                             </div>
-                            <div className="flex-shrink-0">
+                            <div className="shrink-0">
                               <p className="text-sm font-medium text-gray-900">
                                 ${expense.amount.toFixed(2)}
                               </p>

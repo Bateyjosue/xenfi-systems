@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth-store';
+import { useMe } from '@/hooks/use-auth';
 import { Navbar } from '@/components/layout/navbar';
 
 export default function DashboardLayout({
@@ -11,15 +12,31 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { data: user, isLoading, isError } = useMe();
+  const setAuth = useAuthStore((state) => state.setAuth);
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/auth/login');
+    if (!isLoading) {
+      if (user) {
+        setAuth(user);
+        setIsChecking(false);
+      } else if (isError) {
+        setIsChecking(false);
+        router.push('/auth/login');
+      }
     }
-  }, [isAuthenticated, router]);
+  }, [user, isLoading, isError, setAuth, router]);
 
-  if (!isAuthenticated) {
+  if (isChecking || isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
+
+  if (isError || !user) {
     return null;
   }
 

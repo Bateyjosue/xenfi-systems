@@ -13,7 +13,7 @@ export const useLogin = () => {
       return response.data;
     },
     onSuccess: (data) => {
-      setAuth(data.user, data.token);
+      setAuth(data.user);
       queryClient.invalidateQueries({ queryKey: ['user'] });
     },
   });
@@ -29,7 +29,7 @@ export const useRegister = () => {
       return response.data;
     },
     onSuccess: (data) => {
-      setAuth(data.user, data.token);
+      setAuth(data.user);
       queryClient.invalidateQueries({ queryKey: ['user'] });
     },
   });
@@ -50,7 +50,12 @@ export const useLogout = () => {
   const logout = useAuthStore((state) => state.logout);
   const queryClient = useQueryClient();
 
-  return () => {
+  return async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch (error) {
+      // Continue with logout even if API call fails
+    }
     logout();
     queryClient.clear();
   };

@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
-import { api } from '@/lib/api';
-import { Expense } from '@/types';
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
+import { Expense } from "@/types";
 
 interface DashboardStats {
   totalExpenses: number;
@@ -25,11 +25,10 @@ interface GetDashboardParams {
 
 export const useDashboardStats = (params?: GetDashboardParams) => {
   return useQuery({
-    queryKey: ['dashboard', 'stats', params],
+    queryKey: ["dashboard", "stats", params],
     queryFn: async (): Promise<DashboardStats> => {
-      const response = await api.get('/dashboard/stats', { params });
+      const response = await api.get("/dashboard/stats", { params });
       return response.data;
     },
   });
 };
-

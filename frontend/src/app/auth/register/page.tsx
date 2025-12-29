@@ -17,7 +17,7 @@ export default function RegisterPage() {
     try {
       await register.mutateAsync({ email, password, name });
       router.push('/dashboard');
-    } catch (error) {
+    } catch {
       // Error is handled by React Query
     }
   };
