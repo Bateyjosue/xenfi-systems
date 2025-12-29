@@ -7,6 +7,7 @@ import { Expense, PaymentMethod } from '@/types';
 import { format } from 'date-fns';
 import Link from 'next/link';
 import { ExpenseForm } from '@/components/expenses/expense-form';
+import { ConfirmModal } from '@/components/common/confirm-modal';
 
 export default function ExpensesPage() {
   const [showForm, setShowForm] = useState(false);
@@ -14,6 +15,10 @@ export default function ExpensesPage() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [categoryId, setCategoryId] = useState<string>('');
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; expenseId: string | null }>({
+    isOpen: false,
+    expenseId: null,
+  });
 
   const { data: expenses, isLoading } = useExpenses({
     startDate: startDate || undefined,
@@ -24,10 +29,14 @@ export default function ExpensesPage() {
   const { data: categories } = useCategories();
   const deleteExpense = useDeleteExpense();
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this expense?')) {
+  const handleDeleteClick = (id: string) => {
+    setDeleteConfirm({ isOpen: true, expenseId: id });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (deleteConfirm.expenseId) {
       try {
-        await deleteExpense.mutateAsync(id);
+        await deleteExpense.mutateAsync(deleteConfirm.expenseId);
       } catch (error) {
         // Error handled by React Query
       }
@@ -125,6 +134,18 @@ export default function ExpensesPage() {
         />
       )}
 
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, expenseId: null })}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Expense"
+        message="Are you sure you want to delete this expense? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+      />
+
       {/* Expenses Table */}
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
@@ -143,7 +164,7 @@ export default function ExpensesPage() {
                           <p className="text-sm font-medium text-indigo-600 truncate">
                             ${expense.amount.toFixed(2)}
                           </p>
-                          <p className="ml-2 flex-shrink-0 text-sm text-gray-500">
+                          <p className="ml-2 shrink-0 text-sm text-gray-500">
                             {expense.category.name}
                           </p>
                         </div>
@@ -159,7 +180,7 @@ export default function ExpensesPage() {
                           </div>
                         </div>
                       </div>
-                      <div className="ml-4 flex-shrink-0 flex space-x-2">
+                      <div className="ml-4 shrink-0 flex space-x-2">
                         <button
                           onClick={() => handleEdit(expense)}
                           className="text-indigo-600 hover:text-indigo-900 text-sm"
@@ -167,7 +188,7 @@ export default function ExpensesPage() {
                           Edit
                         </button>
                         <button
-                          onClick={() => handleDelete(expense.id)}
+                          onClick={() => handleDeleteClick(expense.id)}
                           className="text-red-600 hover:text-red-900 text-sm"
                         >
                           Delete

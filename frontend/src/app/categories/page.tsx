@@ -4,18 +4,27 @@ import { useState } from 'react';
 import { useCategories, useDeleteCategory } from '@/hooks/use-categories';
 import { Category } from '@/types';
 import { CategoryForm } from '@/components/categories/category-form';
+import { ConfirmModal } from '@/components/common/confirm-modal';
 
 export default function CategoriesPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; categoryId: string | null }>({
+    isOpen: false,
+    categoryId: null,
+  });
 
   const { data: categories, isLoading } = useCategories();
   const deleteCategory = useDeleteCategory();
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this category? Expenses using this category will not be deleted.')) {
+  const handleDeleteClick = (id: string) => {
+    setDeleteConfirm({ isOpen: true, categoryId: id });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (deleteConfirm.categoryId) {
       try {
-        await deleteCategory.mutateAsync(id);
+        await deleteCategory.mutateAsync(deleteConfirm.categoryId);
       } catch (error) {
         // Error handled by React Query
       }
@@ -56,6 +65,18 @@ export default function CategoriesPage() {
         />
       )}
 
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, categoryId: null })}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Category"
+        message="Are you sure you want to delete this category? Expenses using this category will not be deleted."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+      />
+
       {/* Categories Grid */}
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
@@ -83,7 +104,7 @@ export default function CategoriesPage() {
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDelete(category.id)}
+                    onClick={() => handleDeleteClick(category.id)}
                     className="text-red-600 hover:text-red-900 text-sm font-medium"
                   >
                     Delete
