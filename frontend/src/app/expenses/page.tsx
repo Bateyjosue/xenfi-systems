@@ -1,0 +1,191 @@
+'use client';
+
+import { useState } from 'react';
+import { useExpenses, useDeleteExpense } from '@/hooks/use-expenses';
+import { useCategories } from '@/hooks/use-categories';
+import { Expense, PaymentMethod } from '@/types';
+import { format } from 'date-fns';
+import Link from 'next/link';
+import { ExpenseForm } from '@/components/expenses/expense-form';
+
+export default function ExpensesPage() {
+  const [showForm, setShowForm] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [categoryId, setCategoryId] = useState<string>('');
+
+  const { data: expenses, isLoading } = useExpenses({
+    startDate: startDate || undefined,
+    endDate: endDate || undefined,
+    categoryId: categoryId || undefined,
+  });
+
+  const { data: categories } = useCategories();
+  const deleteExpense = useDeleteExpense();
+
+  const handleDelete = async (id: string) => {
+    if (confirm('Are you sure you want to delete this expense?')) {
+      try {
+        await deleteExpense.mutateAsync(id);
+      } catch (error) {
+        // Error handled by React Query
+      }
+    }
+  };
+
+  const handleEdit = (expense: Expense) => {
+    setEditingExpense(expense);
+    setShowForm(true);
+  };
+
+  const handleFormClose = () => {
+    setShowForm(false);
+    setEditingExpense(null);
+  };
+
+  return (
+    <div className="px-4 py-6 sm:px-0">
+      <div className="mb-6 flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Expenses</h1>
+          <p className="mt-1 text-sm text-gray-500">Manage your expenses</p>
+        </div>
+        <button
+          onClick={() => setShowForm(true)}
+          className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          Add Expense
+        </button>
+      </div>
+
+      {/* Filters */}
+      <div className="mb-6 bg-white p-4 rounded-lg shadow">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Start Date
+            </label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              End Date
+            </label>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Category
+            </label>
+            <select
+              value={categoryId}
+              onChange={(e) => setCategoryId(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="">All Categories</option>
+              {categories?.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-end">
+            <button
+              onClick={() => {
+                setStartDate('');
+                setEndDate('');
+                setCategoryId('');
+              }}
+              className="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+            >
+              Reset
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Expense Form Modal */}
+      {showForm && (
+        <ExpenseForm
+          expense={editingExpense}
+          onClose={handleFormClose}
+          onSuccess={handleFormClose}
+        />
+      )}
+
+      {/* Expenses Table */}
+      {isLoading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        </div>
+      ) : (
+        <div className="bg-white shadow overflow-hidden sm:rounded-md">
+          <ul className="divide-y divide-gray-200">
+            {expenses && expenses.length > 0 ? (
+              expenses.map((expense) => (
+                <li key={expense.id}>
+                  <div className="px-4 py-4 sm:px-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center">
+                          <p className="text-sm font-medium text-indigo-600 truncate">
+                            ${expense.amount.toFixed(2)}
+                          </p>
+                          <p className="ml-2 flex-shrink-0 text-sm text-gray-500">
+                            {expense.category.name}
+                          </p>
+                        </div>
+                        <div className="mt-2 sm:flex sm:justify-between">
+                          <div className="sm:flex">
+                            <p className="flex items-center text-sm text-gray-500">
+                              {expense.description || 'No description'}
+                            </p>
+                            <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
+                              {format(new Date(expense.date), 'MMM d, yyyy')} •{' '}
+                              {expense.paymentMethod.replace('_', ' ')}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="ml-4 flex-shrink-0 flex space-x-2">
+                        <button
+                          onClick={() => handleEdit(expense)}
+                          className="text-indigo-600 hover:text-indigo-900 text-sm"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(expense.id)}
+                          className="text-red-600 hover:text-red-900 text-sm"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              ))
+            ) : (
+              <li className="px-4 py-8 text-center text-sm text-gray-500">
+                No expenses found. Create your first expense!
+              </li>
+            )}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
