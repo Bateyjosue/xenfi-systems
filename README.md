@@ -1,67 +1,23 @@
-# XenFi Systems - Expense & Accounting Management Platform
+# XenFi Systems - Enterprise Expense Intelligence
 
-A full-stack expense and accounting management platform built for internal use at XenFi Systems. This application demonstrates modern web development practices with a clean separation between frontend and backend.
+A premium, mobile-first expense management system built for speed, transparency, and fiscal intelligence.
 
-## 🏗️ Architecture
+## 🚀 Quick Start
 
-- **Backend**: Node.js + Express + TypeScript
-- **Frontend**: Next.js 16 (App Router) + React + TypeScript
-- ** Database**: PostgreSQL (via Prisma ORM)
-- **State Management**: Zustand + React Query
-- **Styling**: TailwindCSS
-- **Authentication**: JWT-based authentication with HTTP-only cookies
-- **Deployment**: Vercel (Frontend) + Railway/Render (Backend)
-- **CI/CD**: GitHub Actions
-
-## 📋 Features
-
-### Core Functionality
-- ✅ User authentication (Register/Login) with JWT
-- ✅ Protected routes and session handling
-- ✅ Full CRUD operations for Expenses
-- ✅ Full CRUD operations for Categories
-- ✅ Dashboard with expense analytics
-- ✅ Date range and category filtering
-- ✅ Responsive design
-
-### Technical Highlights
-- Type-safe API with TypeScript throughout
-- React Query for efficient data fetching and caching
-- Zustand for lightweight state management
-- Prisma migrations for database schema management
-- Seed script for sample data
-- Audit trail tracking (createdBy, updatedBy)
-- Role-based access control (ADMIN/STAFF)
-- Error handling and validation
-- Clean code structure and separation of concerns
-- CI/CD pipeline with GitHub Actions
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Node.js 18+ (recommended: Node.js 20+)
-- PostgreSQL database (local or hosted on Neon.com)
-- npm or yarn
-
-### Backend Setup
-
-1. Navigate to the backend directory:
+### 1. Core Installation
+Navigate to both directories and install dependencies:
 ```bash
-cd backend
-```
+# In frontend directory
+npm install
 
-2. Install dependencies:
-```bash
+# In backend directory
 npm install
 ```
 
-3. Set up environment variables:
-```bash
-cp .env.example .env
-```
+### 2. Environment Configuration
+Create `.env` files in both directories based on the templates:
 
-Edit `.env` and configure:
+**Frontend (`/frontend/.env.local`):**
 ```env
 # Database Configuration
 # PostgreSQL connection string
@@ -89,354 +45,53 @@ CLOUDINARY_API_SECRET=
 REDIS_URL=
 ```
 
-4. Generate Prisma client:
+### 3. Database Initialization (Backend)
 ```bash
-npm run prisma:generate
-```
-
-5. Run database migrations:
-```bash
-npm run prisma:migrate
-```
-
-6. Seed the database (optional):
-```bash
+npx prisma generate
+npx prisma migrate dev
 npm run prisma:seed
 ```
 
-This creates:
-- Admin user: `admin@xenfi.com` / `admin123`
-- Staff user: `staff@xenfi.com` / `staff123`
-- Sample categories and expenses
-
-7. Start the development server:
+### 4. Launch Development
 ```bash
+# Frontend
+npm run dev
+
+# Backend
 npm run dev
 ```
 
-The backend API will be available at `http://localhost:3001`
+---
 
-### Frontend Setup
+## 🛠️ Tech Stack & Decisions
 
-1. Navigate to the frontend directory:
-```bash
-cd frontend
-```
+### Frontend: Next.js + Tailwind CSS
+- **Why**: Next.js provides a robust routing system and excellent performance out of the box. Tailwind was chosen for its rapid styling capabilities and the ability to create the **premium dark glassmorphism** aesthetic without heavy third-party UI libraries.
+- **State Management**: **Zustand** for global auth state (lightweight) and **React Query** (TanStack) for server state management (caching, invalidation, loading states).
 
-2. Install dependencies:
-```bash
-npm install
-```
+### Backend: Node.js + Express + Prisma
+- **Why**: A classic, flexible combination. Prisma was chosen as the ORM for its type-safety and developer experience, allowing for rapid schema iterations.
+- **Auth**: Traditional Session-based authentication using `express-session` and `cookie-parser`. This provides a secure, stateful session management layer.
+- **Storage**: **Cloudinary** for scalable receipt image hosting and transformation.
 
-3. Set up environment variables:
-```bash
-cp .env.local.example .env.local
-```
+---
 
-Edit `.env.local`:
-```env
-NEXT_PUBLIC_API_URL=http://localhost:3001
-```
+## ⚖️ Tradeoffs & Limitations
 
-4. Start the development server:
-```bash
-npm run dev
-```
+### 1. Session Storage
+- **Current State**: Uses in-memory session storage by default.
+- **Limitation**: Sessions will be cleared on server restarts in development. For production, the backend is configured to trust proxies but scaling to multiple instances would require a Redis session store (already referenced in dependencies as `ioredis` but not fully initialized for sessions).
 
-The frontend will be available at `http://localhost:3000`
+### 2. Client-Side Only Data 
+- **Decision**: The dashboard heavily relies on React hooks (`useDashboardStats`, `useAdminStats`) after the client-side hydration.
+- **Tradeoff**: Initial page load shows a branded loading state rather than SSR data. This was a tradeoff made to ensure a highly dynamic, SPA-like interactive feel for the "Intelligence" components.
 
-## 📁 Project Structure
+### 3. Vercel Serverless
+- **Heads Up**: The backend is designed as a single Express app exported for Vercel Serverless. Long-running tasks (like large image processing) might hit serverless execution timeouts (typically 10-60s depending on plan).
 
-```
-xenfi-systems/
-├── backend/
-│   ├── src/
-│   │   ├── controllers/     # Request handlers
-│   │   ├── middleware/      # Auth middleware
-│   │   ├── routes/          # API routes
-│   │   ├── types/           # TypeScript types
-│   │   ├── utils/           # Utilities (JWT, DB)
-│   │   └── index.ts         # Express app entry
-│   ├── prisma/
-│   │   ├── schema.prisma    # Database schema
-│   │   └── seed.ts          # Seed script
-│   └── package.json
-│
-└── frontend/
-    ├── src/
-    │   ├── app/             # Next.js App Router pages
-    │   │   ├── auth/        # Login/Register pages
-    │   │   ├── dashboard/   # Dashboard page
-    │   │   ├── expenses/    # Expenses page
-    │   │   └── categories/  # Categories page
-    │   ├── components/      # React components
-    │   ├── hooks/           # React Query hooks
-    │   ├── lib/             # API client, utilities
-    │   ├── stores/          # Zustand stores
-    │   └── types/           # TypeScript types
-    └── package.json
-```
+---
 
-## 🔐 Authentication
-
-The application uses JWT (JSON Web Tokens) for authentication. After login/register, the token is stored in localStorage and sent with each API request via the Authorization header.
-
-### Demo Credentials
-
+## 👤 Admin Access
+For testing, use the seeded credentials:
 - **Admin**: `admin@xenfi.com` / `admin123`
 - **Staff**: `staff@xenfi.com` / `staff123`
-
-## 🗄️ Database Schema
-
-### Users
-- id, email, name, password, role (ADMIN/STAFF), timestamps
-
-### Categories
-- id, name, description, timestamps
-
-### Expenses
-- id, amount, description, date, paymentMethod, attachmentUrl
-- Relations: categoryId → Category, userId → User
-
-## 📡 API Endpoints
-
-### Authentication
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - Login user
-- `GET /api/auth/me` - Get current user (protected)
-
-### Expenses
-- `GET /api/expenses` - List expenses (with filters)
-- `GET /api/expenses/:id` - Get expense details
-- `POST /api/expenses` - Create expense
-- `PUT /api/expenses/:id` - Update expense
-- `DELETE /api/expenses/:id` - Delete expense
-
-### Categories
-- `GET /api/categories` - List categories
-- `GET /api/categories/:id` - Get category details
-- `POST /api/categories` - Create category (protected)
-- `PUT /api/categories/:id` - Update category (protected)
-- `DELETE /api/categories/:id` - Delete category (protected)
-
-### Dashboard
-- `GET /api/dashboard/stats` - Get dashboard statistics (protected)
-
-## 🛠️ Development
-
-### Backend Scripts
-- `npm run dev` - Start development server with hot reload
-- `npm run build` - Build for production
-- `npm start` - Start production server
-- `npm run prisma:generate` - Generate Prisma client
-- `npm run prisma:migrate` - Run database migrations
-- `npm run prisma:seed` - Seed database with sample data
-- `npm run prisma:studio` - Open Prisma Studio
-
-### Frontend Scripts
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm start` - Start production server
-- `npm run lint` - Run ESLint
-
-## 🚢 Deployment
-
-This application is designed to be deployed with:
-- **Frontend**: Vercel (recommended)
-- **Backend**: Railway, Render, or Fly.io
-- **Database**: Neon.com (serverless PostgreSQL)
-
-### Database Setup (Neon.com)
-
-1. Create a free account at [Neon.com](https://neon.tech/)
-2. Create a new project
-3. Copy the connection string (looks like: `postgresql://user:password@ep-xyz.region.aws.neon.tech/neondb?sslmode=require`)
-4. Save it for backend deployment
-
-### Backend Deployment (Railway)
-
-[Railway](https://railway.app/) offers free tier and easy deployment:
-
-1. **Create Railway Account**
-   - Visit [railway.app](https://railway.app/)
-   - Sign up with GitHub
-
-2. **Create New Project**
-   - Click "New Project"
-   - Select "Deploy from GitHub repo"
-   - Choose your repository
-   - Select the `backend` directory as the root
-
-3. **Configure Environment Variables**
-   
-   In Railway project settings, add:
-   ```env
-   DATABASE_URL=postgresql://user:password@ep-xyz.region.aws.neon.tech/neondb?sslmode=require
-   JWT_SECRET=your-production-secret-min-32-characters-random
-   PORT=3001
-   NODE_ENV=production
-   FRONTEND_URL=https://your-app.vercel.app
-   ```
-
-4. **Set Build Configuration**
-   - Build Command: `npm install && npm run prisma:generate && npm run build`
-   - Start Command: `npm run prisma:migrate deploy && npm start`
-
-5. **Deploy**
-   - Railway will automatically deploy
-   - Copy your backend URL (e.g., `https://your-app.up.railway.app`)
-
-### Alternative: Backend Deployment (Render)
-
-1. Create account at [Render.com](https://render.com/)
-2. Click "New +" → "Web Service"
-3. Connect your GitHub repository
-4. Configure:
-   - **Name**: xenfi-backend
-   - **Root Directory**: `backend`
-   - **Environment**: Node
-   - **Build Command**: `npm install && npm run prisma:generate && npm run build`
-   - **Start Command**: `npm run prisma:migrate deploy && npm start`
-5. Add environment variables (same as Railway above)
-6. Click "Create Web Service"
-
-### Frontend Deployment (Vercel)
-
-1. **Push Code to GitHub**
-   ```bash
-   git add .
-   git commit -m "Ready for deployment"
-   git push origin main
-   ```
-
-2. **Deploy to Vercel**
-   - Visit [vercel.com](https://vercel.com/)
-   - Click "Add New Project"
-   - Import your GitHub repository
-   - Configure:
-     - **Framework Preset**: Next.js
-     - **Root Directory**: `frontend`
-     - **Build Command**: (auto-detected)
-     - **Output Directory**: (auto-detected)
-
-3. **Set Environment Variables**
-   
-   In Vercel project settings → Environment Variables:
-   ```env
-   NEXT_PUBLIC_API_URL=https://your-backend.up.railway.app
-   ```
-
-4. **Deploy**
-   - Vercel will automatically build and deploy
-   - Your app will be live at `https://your-app.vercel.app`
-
-5. **Update Backend CORS**
-   - Go back to Railway/Render
-   - Update `FRONTEND_URL` environment variable with your Vercel URL
-   - Redeploy backend
-
-### Post-Deployment Steps
-
-1. **Run Database Migrations** (if not automated)
-   ```bash
-   # SSH into your backend or use Railway CLI
-   npm run prisma:migrate deploy
-   ```
-
-2. **Seed Database** (optional)
-   ```bash
-   npm run prisma:seed
-   ```
-
-3. **Test the Application**
-   - Visit your Vercel URL
-   - Create a new account or login with seeded credentials
-   - Test all CRUD operations
-
-### Environment Variables Reference
-
-#### Backend (.env)
-```env
-DATABASE_URL=postgresql://user:password@host:port/database?sslmode=require
-JWT_SECRET=min-32-char-random-secret
-PORT=3001
-NODE_ENV=production
-FRONTEND_URL=https://your-app.vercel.app
-```
-
-#### Frontend (.env.local)
-```env
-NEXT_PUBLIC_API_URL=https://your-backend.up.railway.app
-```
-
-### Continuous Deployment
-
-Both Vercel and Railway support automatic deployments:
-- **Push to main branch** → triggers automatic deployment
-- **GitHub Actions** runs CI checks before deployment
-- **Pipeline**: Lint → Type Check → Build → Deploy
-
-## 🔒 Security Notes
-
-- Never commit `.env` files
-- Use strong `JWT_SECRET` in production
-- Implement rate limiting in production
-- Use HTTPS in production
-- Validate all user inputs
-- Consider adding CSRF protection
-
-## 📝 Tech Choices & Tradeoffs
-
-### Why Express + Next.js Separate?
-- Clear separation of concerns
-- Independent scaling
-- Easier to maintain and test
-- Allows different deployment strategies
-- Backend can serve multiple clients (web, mobile, etc.)
-
-### Why JWT with HTTP-only Cookies?
-- Secure authentication (XSS protection)
-- No CSRF tokens needed with SameSite cookies
-- Production-ready alternative to NextAuth
-- Full control over auth logic
-- Simpler for this use case than full OAuth
-
-### Why React Query?
-- Automatic caching and refetching
-- Optimistic updates
-- Built-in loading/error states
-- Reduces boilerplate
-- Perfect for REST APIs
-
-### Why Zustand?
-- Lightweight alternative to Redux
-- Simple API
-- Good TypeScript support
-- Perfect for auth state
-- No provider boilerplate
-
-### Known Limitations
-- No file upload for receipts (attachment URL only)
-- No role-based UI differences (backend enforces)
-- No pagination (can be added)
-- No email verification
-- No password reset flow
-
-## 🤝 Contributing
-
-This is a practical engineering task submission. For production use, consider:
-- Adding tests (unit + integration)
-- Implementing file uploads
-- Adding pagination
-- Implementing role-based UI
-- Adding audit trails
-- Setting up CI/CD
-- Adding monitoring/logging
-
-## 📄 License
-
-ISC
-
-## 👤 Author
-
-Josue Batey - Practical Engineering Task Submission for XenFi Systems
