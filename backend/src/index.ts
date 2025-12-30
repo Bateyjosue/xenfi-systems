@@ -15,6 +15,7 @@ const allowedOrigins = [
   "http://localhost:3000",
   process.env.FRONTEND_URL,
   "https://xenfi-systems.vercel.app",
+  "https://xenfi-systems-7yv3.vercel.app",
 ].filter(Boolean) as string[];
 
 app.use(
