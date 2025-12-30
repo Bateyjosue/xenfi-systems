@@ -125,14 +125,13 @@ export default function ExpensesPage() {
         </div>
       </div>
 
-      {/* Expense Form Modal */}
-      {showForm && (
-        <ExpenseForm
-          expense={editingExpense}
-          onClose={handleFormClose}
-          onSuccess={handleFormClose}
-        />
-      )}
+      {/* Expense Form Drawer */}
+      <ExpenseForm
+        isOpen={showForm}
+        expense={editingExpense}
+        onClose={handleFormClose}
+        onSuccess={handleFormClose}
+      />
 
       {/* Delete Confirmation Modal */}
       <ConfirmModal

@@ -27,15 +27,15 @@ function NavLink({ item, isActive }: { item: any; isActive: boolean }) {
       href={item.href}
       className={cn(
         isActive
-          ? 'bg-indigo-700 text-white'
-          : 'text-indigo-200 hover:text-white hover:bg-indigo-700',
-        'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
+          ? 'bg-teal-500/10 text-teal-400'
+          : 'text-zinc-400 hover:text-white hover:bg-zinc-800',
+        'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold transition-all'
       )}
     >
       <item.icon
         className={cn(
-          isActive ? 'text-white' : 'text-indigo-200 group-hover:text-white',
-          'h-6 w-6 shrink-0'
+          isActive ? 'text-teal-400' : 'text-zinc-400 group-hover:text-white',
+          'h-6 w-6 shrink-0 transition-colors'
         )}
         aria-hidden="true"
       />
@@ -67,7 +67,7 @@ export function MobileSidebar({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-gray-900/80" />
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" />
         </TransitionChild>
 
         <div className="fixed inset-0 flex">
@@ -103,9 +103,14 @@ export function MobileSidebar({
               </TransitionChild>
               
               {/* Sidebar Content */}
-              <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-indigo-600 px-6 pb-4 ring-1 ring-white/10">
+              <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-zinc-900 px-6 pb-4 ring-1 ring-white/10">
                 <div className="flex h-16 shrink-0 items-center">
-                   <span className="text-xl font-bold text-white">XenFi Systems</span>
+                   <div className="flex items-center gap-2">
+                     <div className="h-8 w-8 rounded-lg bg-teal-500/20 flex items-center justify-center">
+                       <BanknotesIcon className="h-5 w-5 text-teal-500" />
+                     </div>
+                     <span className="text-xl font-bold text-white tracking-tight">XenFi</span>
+                   </div>
                 </div>
                 <nav className="flex flex-1 flex-col">
                   <ul role="list" className="flex flex-1 flex-col gap-y-7">
@@ -124,10 +129,10 @@ export function MobileSidebar({
                     <li className="mt-auto">
                         <button
                             onClick={() => logout()}
-                            className="text-indigo-200 hover:text-white hover:bg-indigo-700 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full"
+                            className="text-zinc-400 hover:text-white hover:bg-zinc-800 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full transition-all"
                         >
                             <ArrowLeftOnRectangleIcon
-                                className="text-indigo-200 group-hover:text-white h-6 w-6 shrink-0"
+                                className="text-zinc-400 group-hover:text-white h-6 w-6 shrink-0"
                                 aria-hidden="true"
                             />
                             Logout
@@ -151,9 +156,14 @@ export function DesktopSidebar() {
 
   return (
     <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-      <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-indigo-600 px-6 pb-4">
+      <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-zinc-950 px-6 pb-4 border-r border-white/5">
         <div className="flex h-16 shrink-0 items-center">
-          <span className="text-xl font-bold text-white">XenFi Systems</span>
+           <div className="flex items-center gap-2">
+             <div className="h-8 w-8 rounded-lg bg-teal-500/20 flex items-center justify-center">
+               <BanknotesIcon className="h-5 w-5 text-teal-500" />
+             </div>
+             <span className="text-xl font-bold text-white tracking-tight">XenFi Systems</span>
+           </div>
         </div>
         <nav className="flex flex-1 flex-col">
           <ul role="list" className="flex flex-1 flex-col gap-y-7">
@@ -170,20 +180,20 @@ export function DesktopSidebar() {
               </ul>
             </li>
             <li className="mt-auto">
-              <div className="flex items-center gap-x-4 py-3 text-sm font-semibold leading-6 text-white min-w-0">
-                  <div className="h-8 w-8 rounded-full bg-indigo-700 flex items-center justify-center border border-indigo-500">
-                    <span className="text-xs font-medium text-white">
+              <div className="flex items-center gap-x-4 py-3 text-sm font-semibold leading-6 text-white min-w-0 mb-2">
+                  <div className="h-8 w-8 rounded-full bg-zinc-800 flex items-center justify-center border border-white/10 text-teal-500">
+                    <span className="text-xs font-medium">
                         {(user?.name?.[0] || user?.email?.[0] || "U").toUpperCase()}
                     </span>
                   </div>
-                  <span className="truncate">{user?.name || user?.email}</span>
+                  <span className="truncate text-zinc-300">{user?.name || user?.email}</span>
               </div>
                 <button
                     onClick={() => logout()}
-                    className="text-indigo-200 hover:text-white hover:bg-indigo-700 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full"
+                    className="text-zinc-400 hover:text-white hover:bg-zinc-800 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full transition-all"
                 >
                     <ArrowLeftOnRectangleIcon
-                        className="text-indigo-200 group-hover:text-white h-6 w-6 shrink-0"
+                        className="text-zinc-400 group-hover:text-white h-6 w-6 shrink-0"
                         aria-hidden="true"
                     />
                     Logout

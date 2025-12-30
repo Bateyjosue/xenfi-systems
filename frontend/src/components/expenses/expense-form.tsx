@@ -5,38 +5,82 @@ import { useCreateExpense, useUpdateExpense } from '@/hooks/use-expenses';
 import { useCategories } from '@/hooks/use-categories';
 import { Expense, PaymentMethod, CreateExpenseDto } from '@/types';
 import { FileUpload } from '@/components/ui/file-upload';
+import { MobileDrawer } from '@/components/ui/mobile-drawer';
+import { 
+  BanknotesIcon, 
+  CreditCardIcon, 
+  ShoppingBagIcon, 
+  TruckIcon, 
+  HomeIcon,
+  VideoCameraIcon,
+  CakeIcon,
+  AcademicCapIcon,
+  BriefcaseIcon,
+  QuestionMarkCircleIcon,
+  CalendarIcon,
+  DocumentTextIcon
+} from '@heroicons/react/24/outline';
+import { clsx } from 'clsx';
+import { cn } from '@/lib/utils'; // Assuming you have this utility
 
 interface ExpenseFormProps {
+  isOpen: boolean;
   expense?: Expense | null;
   onClose: () => void;
   onSuccess: () => void;
 }
 
-const PAYMENT_METHODS: PaymentMethod[] = [
-  'CASH',
-  'CARD',
-  'BANK_TRANSFER',
-  'MOBILE_MONEY',
-  'OTHER',
+const PAYMENT_METHODS: { value: PaymentMethod; label: string; icon: any }[] = [
+  { value: 'CASH', label: 'Cash', icon: BanknotesIcon },
+  { value: 'CARD', label: 'Card', icon: CreditCardIcon },
+  { value: 'BANK_TRANSFER', label: 'Transfer', icon: HomeIcon },
+  { value: 'MOBILE_MONEY', label: 'Mobile Money', icon: CreditCardIcon }, // Using card icon as placeholder
+  { value: 'OTHER', label: 'Other', icon: QuestionMarkCircleIcon },
 ];
 
-export function ExpenseForm({ expense, onClose, onSuccess }: ExpenseFormProps) {
+const CATEGORY_ICONS: Record<string, any> = {
+  'food': CakeIcon,
+  'transport': TruckIcon,
+  'shopping': ShoppingBagIcon,
+  'housing': HomeIcon,
+  'utilities': HomeIcon,
+  'entertainment': VideoCameraIcon,
+  'education': AcademicCapIcon,
+  'work': BriefcaseIcon,
+  'business': BriefcaseIcon,
+  'health': QuestionMarkCircleIcon,
+};
+
+export function ExpenseForm({ isOpen, expense, onClose, onSuccess }: ExpenseFormProps) {
   const createExpense = useCreateExpense();
   const updateExpense = useUpdateExpense();
   const { data: categories } = useCategories();
 
-  const [formData, setFormData] = useState<CreateExpenseDto>(() => ({
-    amount: expense?.amount || 0,
-    description: expense?.description || '',
-    date: expense?.date ? expense.date.split('T')[0] : new Date().toISOString().split('T')[0],
-    paymentMethod: expense?.paymentMethod || 'CARD',
-    attachmentUrl: expense?.attachmentUrl || '',
-    categoryId: expense?.categoryId || '',
-  }));
+  // Reset form when opening/closing or changing expense
+  useEffect(() => {
+    if (isOpen) {
+        setFormData({
+            amount: expense?.amount || 0,
+            description: expense?.description || '',
+            date: expense?.date ? expense.date.split('T')[0] : new Date().toISOString().split('T')[0],
+            paymentMethod: expense?.paymentMethod || 'CARD',
+            attachmentUrl: expense?.attachmentUrl || '',
+            categoryId: expense?.categoryId || '',
+        });
+    }
+  }, [isOpen, expense]);
+
+  const [formData, setFormData] = useState<CreateExpenseDto>({
+    amount: 0,
+    description: '',
+    date: new Date().toISOString().split('T')[0],
+    paymentMethod: 'CARD',
+    attachmentUrl: '',
+    categoryId: '',
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
       if (expense) {
         await updateExpense.mutateAsync({ id: expense.id, data: formData });
@@ -44,6 +88,7 @@ export function ExpenseForm({ expense, onClose, onSuccess }: ExpenseFormProps) {
         await createExpense.mutateAsync(formData);
       }
       onSuccess();
+      onClose();
     } catch (error) {
       // Error handled by React Query
     }
@@ -52,131 +97,144 @@ export function ExpenseForm({ expense, onClose, onSuccess }: ExpenseFormProps) {
   const isLoading = createExpense.isPending || updateExpense.isPending;
   const error = createExpense.error || updateExpense.error;
 
-  return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div className="mt-3">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">
-            {expense ? 'Edit Expense' : 'Create Expense'}
-          </h3>
+  // Helper to get icon for category
+  const getCategoryIcon = (name: string) => {
+    const key = Object.keys(CATEGORY_ICONS).find(k => name.toLowerCase().includes(k));
+    return key ? CATEGORY_ICONS[key] : QuestionMarkCircleIcon;
+  };
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Amount *
-              </label>
-              <input
+  return (
+    <MobileDrawer isOpen={isOpen} onClose={onClose} title={expense ? 'Edit Expense' : 'New Expense'}>
+      <form onSubmit={handleSubmit} className="flex flex-col h-full space-y-8">
+        
+        {/* BIG AMOUNT INPUT */}
+        <div className="flex flex-col items-center justify-center pt-2">
+           <label className="text-zinc-500 text-sm font-medium uppercase tracking-wider mb-2">Amount</label>
+           <div className="relative flex items-center justify-center">
+             <span className="text-4xl font-bold text-zinc-400 mr-2">$</span>
+             <input
                 type="number"
                 step="0.01"
                 required
-                value={formData.amount}
-                onChange={(e) =>
-                  setFormData({ ...formData, amount: parseFloat(e.target.value) })
-                }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Category *
-              </label>
-              <select
-                required
-                value={formData.categoryId}
-                onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              >
-                <option value="">Select a category</option>
-                {categories?.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Description
-              </label>
-              <textarea
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Date *
-              </label>
-              <input
-                type="date"
-                required
-                value={formData.date}
-                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Payment Method *
-              </label>
-              <select
-                required
-                value={formData.paymentMethod}
-                onChange={(e) =>
-                  setFormData({ ...formData, paymentMethod: e.target.value as PaymentMethod })
-                }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              >
-                {PAYMENT_METHODS.map((method) => (
-                  <option key={method} value={method}>
-                    {method.replace('_', ' ')}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <FileUpload 
-                label="Receipt / Attachment"
-                defaultUrl={formData.attachmentUrl}
-                onUploadComplete={(url) => setFormData({ ...formData, attachmentUrl: url })}
-              />
-            </div>
-
-            {error && (
-              <div className="rounded-md bg-red-50 p-4">
-                <div className="text-sm text-red-800">
-                  {error instanceof Error ? error.message : 'An error occurred'}
-                </div>
-              </div>
-            )}
-
-            <div className="flex justify-end space-x-3 pt-4">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
-              >
-                {isLoading ? 'Saving...' : expense ? 'Update' : 'Create'}
-              </button>
-            </div>
-          </form>
+                autoFocus
+                value={formData.amount || ''}
+                onChange={(e) => setFormData({ ...formData, amount: parseFloat(e.target.value) })}
+                placeholder="0.00"
+                className="block w-full text-center bg-transparent border-none p-0 text-6xl font-bold text-white placeholder-zinc-700 focus:ring-0"
+             />
+           </div>
         </div>
-      </div>
-    </div>
+
+        {/* CATEGORY GRID */}
+        <div>
+           <label className="text-zinc-500 text-sm font-medium uppercase tracking-wider mb-4 block">Category</label>
+           <div className="grid grid-cols-4 gap-4">
+              {categories?.map((cat) => {
+                  const Icon = getCategoryIcon(cat.name);
+                  const isSelected = formData.categoryId === cat.id;
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => setFormData({ ...formData, categoryId: cat.id })}
+                      className="flex flex-col items-center gap-2 group"
+                    >
+                      <div className={cn(
+                        "w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-200 shadow-lg ring-1 ring-white/5",
+                        isSelected 
+                          ? "bg-teal-500 text-white shadow-teal-500/30 scale-105" 
+                          : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white"
+                      )}>
+                        <Icon className="w-7 h-7" />
+                      </div>
+                      <span className={cn(
+                        "text-xs font-medium truncate w-full text-center transition-colors",
+                        isSelected ? "text-teal-400" : "text-zinc-500 group-hover:text-zinc-300"
+                      )}>
+                        {cat.name}
+                      </span>
+                    </button>
+                  )
+              })}
+           </div>
+        </div>
+
+        {/* DETAILS SECTION */}
+        <div className="space-y-4 bg-zinc-800/50 p-4 rounded-xl border border-white/5">
+             {/* Payment Method & Date Row */}
+             <div className="grid grid-cols-2 gap-4">
+                <div>
+                   <label className="text-zinc-500 text-xs font-medium uppercase tracking-wider mb-1 block">Date</label>
+                   <div className="relative">
+                      <input
+                        type="date"
+                        required
+                        value={formData.date}
+                        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                        className="w-full bg-zinc-900 border-zinc-700 text-white text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 pl-9"
+                      />
+                      <CalendarIcon className="w-4 h-4 text-zinc-500 absolute left-3 top-3" />
+                   </div>
+                </div>
+                 <div>
+                   <label className="text-zinc-500 text-xs font-medium uppercase tracking-wider mb-1 block">Method</label>
+                   <select
+                      value={formData.paymentMethod}
+                      onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value as PaymentMethod })}
+                      className="w-full bg-zinc-900 border-zinc-700 text-white text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500"
+                   >
+                     {PAYMENT_METHODS.map(m => (
+                       <option key={m.value} value={m.value}>{m.label}</option>
+                     ))}
+                   </select>
+                </div>
+             </div>
+
+             {/* Description */}
+             <div>
+                <label className="text-zinc-500 text-xs font-medium uppercase tracking-wider mb-1 block">Note</label>
+                <div className="relative">
+                   <textarea
+                     rows={1}
+                     value={formData.description}
+                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                     placeholder="What was this for?"
+                     className="w-full bg-zinc-900 border-zinc-700 text-white text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 pl-9"
+                   />
+                   <DocumentTextIcon className="w-4 h-4 text-zinc-500 absolute left-3 top-3" />
+                </div>
+             </div>
+
+             {/* Attachment */}
+             <div>
+                <label className="text-zinc-500 text-xs font-medium uppercase tracking-wider mb-1 block">Receipt</label>
+                <FileUpload 
+                    label="Attach Receipt"
+                    defaultUrl={formData.attachmentUrl}
+                    onUploadComplete={(url) => setFormData({ ...formData, attachmentUrl: url })}
+                />
+             </div>
+        </div>
+
+        {/* Error Message */}
+        {error && (
+            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center">
+                {error instanceof Error ? error.message : 'Failed to save expense'}
+            </div>
+        )}
+
+        {/* Submit Button */}
+        <div className="pt-4 pb- safe-area-pb">
+           <button
+             type="submit"
+             disabled={isLoading}
+             className="w-full bg-teal-500 hover:bg-teal-400 text-zinc-900 font-bold text-lg py-4 rounded-full shadow-lg shadow-teal-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
+           >
+             {isLoading ? 'Saving...' : 'Save Expense'}
+           </button>
+        </div>
+      </form>
+    </MobileDrawer>
   );
 }
 
