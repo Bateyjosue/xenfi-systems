@@ -63,11 +63,30 @@ cp .env.example .env
 
 Edit `.env` and configure:
 ```env
-DATABASE_URL="postgresql://user:password@localhost:5432/xenfi_db?schema=public"
-JWT_SECRET="your-super-secret-jwt-key-change-in-production"
+# Database Configuration
+# PostgreSQL connection string
+# Format: postgresql://USERNAME:PASSWORD@HOST:PORT/DATABASE?schema=SCHEMA
+# Example with Neon.com: postgresql://user:password@ep-xyz.region.aws.neon.tech/xenfi_db?sslmode=require
+DATABASE_URL=""
+
+# JWT Authentication
+# Use a strong, random secret for production (minimum 32 characters)
+# Generate with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+JWT_SECRET="your-super-secret-jwt-key-change-in-production-min-32-chars"
+
+# Server Configuration
 PORT=3001
 NODE_ENV=development
-FRONTEND_URL="http://localhost:3000"
+
+# CORS Configuration
+# Set to your frontend URL in production
+FRONTEND_URL=https://xenfi-systems-7yv3.vercel.app/
+
+# cloudinary
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+REDIS_URL=
 ```
 
 4. Generate Prisma client:
