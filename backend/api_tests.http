@@ -1,0 +1,72 @@
+# @baseUrl = http://localhost:3001
+# Uncomment the line below to test the production API
+@baseUrl = https://xenfi-systems.vercel.app
+
+### Health Check
+GET {{baseUrl}}/health
+
+### ------------------------------------------------------------------------
+### AUTHENTICATION
+### ------------------------------------------------------------------------
+
+### Register (Create a new user)
+# @name register
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "testuser@example.com",
+  "password": "Password123!",
+  "name": "Test User"
+}
+
+### Login
+# @name login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "testuser@example.com",
+  "password": "Password123!"
+}
+
+### Get Current User (Me)
+GET {{baseUrl}}/api/auth/me
+
+### Logout
+POST {{baseUrl}}/api/auth/logout
+
+### ------------------------------------------------------------------------
+### EXPENSES
+### ------------------------------------------------------------------------
+
+### Get All Expenses
+GET {{baseUrl}}/api/expenses
+
+### Create Expense
+POST {{baseUrl}}/api/expenses
+Content-Type: application/json
+
+{
+  "amount": 50.00,
+  "description": "Lunch with team",
+  "date": "2023-10-27T12:00:00Z",
+  "categoryId": "replace-with-valid-category-id"
+}
+
+### ------------------------------------------------------------------------
+### CATEGORIES
+### ------------------------------------------------------------------------
+
+### Get All Categories
+GET {{baseUrl}}/api/categories
+
+### Create Category
+POST {{baseUrl}}/api/categories
+Content-Type: application/json
+
+{
+    "name": "Food",
+    "color": "#FF5733",
+    "icon": "utensils"
+}

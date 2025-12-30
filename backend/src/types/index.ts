@@ -1,8 +1,8 @@
 import { Request } from "express";
 
 // Generic Authenticated Request type compatible with Express's generic Request
-export interface AuthRequest<P = any, ResBody = any, ReqBody = any>
-  extends Request<P, ResBody, ReqBody> {
+export interface AuthRequest
+  extends Request {
   params: { id: any; };
   body: UpdateExpenseDto;
   userId?: string;
