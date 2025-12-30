@@ -44,6 +44,8 @@ POST {{baseUrl}}/api/auth/logout
 GET {{baseUrl}}/api/expenses
 
 ### Create Expense
+
+@catId=cmjrl2yga0007gtopajbjpub3
 POST {{baseUrl}}/api/expenses
 Content-Type: application/json
 
@@ -51,7 +53,8 @@ Content-Type: application/json
   "amount": 50.00,
   "description": "Lunch with team",
   "date": "2023-10-27T12:00:00Z",
-  "categoryId": "replace-with-valid-category-id"
+  "categoryId": "{{catId}}",
+  "paymentMethod": "CASH"
 }
 
 ### ------------------------------------------------------------------------

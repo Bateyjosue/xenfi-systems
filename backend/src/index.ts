@@ -3,7 +3,6 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import dotenv from "dotenv";
-// import passport from "./utils/google-auth";
 
 dotenv.config();
 
@@ -56,8 +55,6 @@ app.use(
     },
   })
 );
-// app.use(passport.initialize());
-// app.use(passport.session());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
