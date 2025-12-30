@@ -40,11 +40,20 @@ app.use(
   })
 );
 app.use(cookieParser());
+// Trust proxy is required for secure cookies behind a proxy (like Vercel/Railway)
+app.set('trust proxy', 1);
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "your-session-secret",
     resave: false,
     saveUninitialized: false,
+    cookie: {
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      secure: process.env.NODE_ENV === 'production', // true in production
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // 'none' for cross-site
+      httpOnly: true,
+    },
   })
 );
 // app.use(passport.initialize());
