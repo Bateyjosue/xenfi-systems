@@ -91,22 +91,22 @@ export function FileUpload({ onUploadComplete, defaultUrl, label = "Receipt/Atta
 
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-medium leading-6 text-gray-900">
+      <label className="block text-sm font-medium leading-6 text-zinc-400">
         {label}
       </label>
       
       {!previewUrl ? (
           <div
             className={cn(
-                "mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10 transition-colors",
-                isUploading ? "opacity-50 cursor-wait" : "hover:bg-gray-50 cursor-pointer"
+                "mt-2 flex justify-center rounded-lg border border-dashed border-zinc-700 px-6 py-10 transition-colors",
+                isUploading ? "opacity-50 cursor-wait" : "hover:bg-white/5 cursor-pointer"
             )}
             onClick={() => !isUploading && fileInputRef.current?.click()}
           >
             <div className="text-center">
-              <CloudArrowUpIcon className="mx-auto h-12 w-12 text-gray-300" aria-hidden="true" />
-              <div className="mt-4 flex text-sm leading-6 text-gray-600 justify-center">
-                <span className="relative rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500">
+              <CloudArrowUpIcon className="mx-auto h-12 w-12 text-zinc-600" aria-hidden="true" />
+              <div className="mt-4 flex text-sm leading-6 text-zinc-400 justify-center">
+                <span className="relative rounded-md bg-transparent font-semibold text-teal-500 focus-within:outline-none hover:text-teal-400">
                   <span>Upload a file</span>
                   <input
                     ref={fileInputRef}
@@ -117,9 +117,9 @@ export function FileUpload({ onUploadComplete, defaultUrl, label = "Receipt/Atta
                     disabled={isUploading}
                   />
                 </span>
-                <p className="pl-1">or drag and drop</p>
+                <p className="pl-1 text-zinc-500">or drag and drop</p>
               </div>
-              <p className="text-xs leading-5 text-gray-600">PNG, JPG, PDF up to 5MB</p>
+              <p className="text-xs leading-5 text-zinc-600">PNG, JPG, PDF up to 5MB</p>
               {isUploading && <p className="mt-2 text-sm text-indigo-600 font-medium">Uploading...</p>}
             </div>
           </div>
@@ -132,17 +132,17 @@ export function FileUpload({ onUploadComplete, defaultUrl, label = "Receipt/Atta
                         <img 
                             src={previewUrl} 
                             alt="Preview" 
-                            className="h-16 w-16 object-cover rounded-md" 
+                            className="h-16 w-16 object-cover rounded-md border border-white/10" 
                         />
                     ) : (
-                        <DocumentIcon className="h-16 w-16 text-gray-400" />
+                        <DocumentIcon className="h-16 w-16 text-zinc-600" />
                     )}
                 </div>
                 <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">
+                    <p className="text-sm font-medium text-white truncate">
                         {file ? file.name : "Uploaded Attachment"}
                     </p>
-                    <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-indigo-500 hover:text-indigo-600">
+                    <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-teal-500 hover:text-teal-400">
                         View File
                     </a>
                 </div>

@@ -18,7 +18,8 @@ import {
   BriefcaseIcon,
   QuestionMarkCircleIcon,
   CalendarIcon,
-  DocumentTextIcon
+  DocumentTextIcon,
+  HeartIcon
 } from '@heroicons/react/24/outline';
 import { clsx } from 'clsx';
 import { cn } from '@/lib/utils'; // Assuming you have this utility
@@ -40,15 +41,33 @@ const PAYMENT_METHODS: { value: PaymentMethod; label: string; icon: any }[] = [
 
 const CATEGORY_ICONS: Record<string, any> = {
   'food': CakeIcon,
+  'meal': CakeIcon,
+  'restaurant': CakeIcon,
+  'dining': CakeIcon,
+  'drink': CakeIcon,
   'transport': TruckIcon,
+  'car': TruckIcon,
+  'travel': TruckIcon,
   'shopping': ShoppingBagIcon,
+  'cloth': ShoppingBagIcon,
   'housing': HomeIcon,
+  'rent': HomeIcon,
+  'home': HomeIcon,
   'utilities': HomeIcon,
+  'electricity': HomeIcon,
+  'water': HomeIcon,
   'entertainment': VideoCameraIcon,
+  'movie': VideoCameraIcon,
+  'game': VideoCameraIcon,
   'education': AcademicCapIcon,
+  'school': AcademicCapIcon,
+  'course': AcademicCapIcon,
   'work': BriefcaseIcon,
   'business': BriefcaseIcon,
-  'health': QuestionMarkCircleIcon,
+  'office': BriefcaseIcon,
+  'health': HeartIcon, // I see I need to import this
+  'medical': HeartIcon,
+  'pharmacy': HeartIcon,
 };
 
 export function ExpenseForm({ isOpen, expense, onClose, onSuccess }: ExpenseFormProps) {
@@ -79,8 +98,17 @@ export function ExpenseForm({ isOpen, expense, onClose, onSuccess }: ExpenseForm
     categoryId: '',
   });
 
+  const [validationError, setValidationError] = useState<string | null>(null);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setValidationError(null);
+
+    if (!formData.categoryId) {
+      setValidationError('Please select a category');
+      return;
+    }
+
     try {
       if (expense) {
         await updateExpense.mutateAsync({ id: expense.id, data: formData });
@@ -95,7 +123,7 @@ export function ExpenseForm({ isOpen, expense, onClose, onSuccess }: ExpenseForm
   };
 
   const isLoading = createExpense.isPending || updateExpense.isPending;
-  const error = createExpense.error || updateExpense.error;
+  const error = createExpense.error || updateExpense.error || validationError;
 
   // Helper to get icon for category
   const getCategoryIcon = (name: string) => {
@@ -108,10 +136,10 @@ export function ExpenseForm({ isOpen, expense, onClose, onSuccess }: ExpenseForm
       <form onSubmit={handleSubmit} className="flex flex-col h-full space-y-8">
         
         {/* BIG AMOUNT INPUT */}
-        <div className="flex flex-col items-center justify-center pt-2">
-           <label className="text-zinc-500 text-sm font-medium uppercase tracking-wider mb-2">Amount</label>
-           <div className="relative flex items-center justify-center">
-             <span className="text-4xl font-bold text-zinc-400 mr-2">$</span>
+        <div className="flex flex-col items-center justify-center pt-6 pb-2">
+           <label className="text-zinc-500 text-xs font-semibold uppercase tracking-widest mb-3 opacity-80">Amount</label>
+           <div className="flex items-baseline justify-center">
+             <span className="text-3xl font-bold text-teal-500/50 mr-2">$</span>
              <input
                 type="number"
                 step="0.01"
@@ -120,15 +148,15 @@ export function ExpenseForm({ isOpen, expense, onClose, onSuccess }: ExpenseForm
                 value={formData.amount || ''}
                 onChange={(e) => setFormData({ ...formData, amount: parseFloat(e.target.value) })}
                 placeholder="0.00"
-                className="block w-full text-center bg-transparent border-none p-0 text-6xl font-bold text-white placeholder-zinc-700 focus:ring-0"
+                className="block min-w-[200px] text-center bg-transparent border-none p-0 text-7xl font-bold text-white placeholder-zinc-800 focus:ring-0 appearance-none"
              />
            </div>
         </div>
 
         {/* CATEGORY GRID */}
         <div>
-           <label className="text-zinc-500 text-sm font-medium uppercase tracking-wider mb-4 block">Category</label>
-           <div className="grid grid-cols-4 gap-4">
+           <label className="text-zinc-500 text-xs font-semibold uppercase tracking-widest mb-4 block opacity-80">Category</label>
+           <div className="grid grid-cols-4 gap-x-4 gap-y-6">
               {categories?.map((cat) => {
                   const Icon = getCategoryIcon(cat.name);
                   const isSelected = formData.categoryId === cat.id;
@@ -206,10 +234,9 @@ export function ExpenseForm({ isOpen, expense, onClose, onSuccess }: ExpenseForm
              </div>
 
              {/* Attachment */}
-             <div>
-                <label className="text-zinc-500 text-xs font-medium uppercase tracking-wider mb-1 block">Receipt</label>
+             <div className="pt-2">
                 <FileUpload 
-                    label="Attach Receipt"
+                    label="RECEIPT"
                     defaultUrl={formData.attachmentUrl}
                     onUploadComplete={(url) => setFormData({ ...formData, attachmentUrl: url })}
                 />

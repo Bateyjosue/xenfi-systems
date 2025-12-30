@@ -59,6 +59,8 @@ export const useLogout = () => {
     }
     logout();
     queryClient.clear();
+    // Force a clean redirect to login
+    window.location.href = '/auth/login';
   };
 };
 

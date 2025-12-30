@@ -41,11 +41,11 @@ export default function DashboardPage() {
     <div className="space-y-8">
       <div className="md:flex md:items-center md:justify-between">
         <div className="min-w-0 flex-1">
-          <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+          <h2 className="text-3xl font-extrabold leading-7 text-white sm:truncate sm:text-4xl sm:tracking-tight">
             Dashboard
           </h2>
-          <p className="mt-1 text-sm text-gray-500">
-             {isAdmin ? 'System overview and analytics' : 'Track your expenses and spending'}
+          <p className="mt-2 text-sm text-zinc-500 font-medium">
+             {isAdmin ? 'System overview and live analytics' : 'Track your spending and manage your business expenses'}
           </p>
         </div>
       </div>

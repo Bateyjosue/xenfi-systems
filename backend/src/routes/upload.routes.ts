@@ -31,12 +31,12 @@ const uploadMiddleware = (req: any, res: any, next: any) => {
 
   upload(req, res, (err: any) => {
     if (err) {
-      console.error('Multer/Cloudinary upload error:', err);
+      console.error('Multer/Cloudinary upload error DETAIL:', err);
       // Handle Multer errors explicitly
       if (err instanceof multer.MulterError) {
         return res.status(400).json({ error: `Upload error: ${err.message}` });
       }
-      return res.status(500).json({ error: `Upload failed: ${err.message || 'Unknown error'}` });
+      return res.status(500).json({ error: `Upload failed: ${err.message || 'Unknown error'}`, detail: err.message });
     }
     next();
   });

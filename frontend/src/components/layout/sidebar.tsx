@@ -7,6 +7,7 @@ import {
   HomeIcon,
   BanknotesIcon,
   FolderIcon,
+  UserGroupIcon,
   ArrowLeftOnRectangleIcon,
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
@@ -19,6 +20,7 @@ const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
   { name: 'Expenses', href: '/expenses', icon: BanknotesIcon },
   { name: 'Categories', href: '/categories', icon: FolderIcon, adminOnly: true },
+  { name: 'Staff', href: '/admin', icon: UserGroupIcon, adminOnly: true },
 ];
 
 function NavLink({ item, isActive }: { item: any; isActive: boolean }) {

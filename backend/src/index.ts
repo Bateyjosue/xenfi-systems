@@ -58,6 +58,17 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Request Logger (placed after json parser so req.body is available)
+app.use((req, res, next) => {
+  if (process.env.NODE_ENV !== 'production' || req.originalUrl.includes('/api/auth')) {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+    if (req.body && Object.keys(req.body).length > 0) {
+      console.log('Body:', JSON.stringify({ ...req.body, password: '***' }, null, 2));
+    }
+  }
+  next();
+});
+
 // Health check
 app.get("/health", (req, res) => {
   res.json({ status: "ok", message: "XenFi Backend API is running" });

@@ -11,6 +11,12 @@ export const authenticate: RequestHandler = (
     // Try to get token from cookie first, then fallback to Authorization header
     let token = req.cookies?.token;
 
+    console.log('Auth Middleware: Checking token', { 
+      hasCookie: !!req.cookies?.token,
+      cookieCount: Object.keys(req.cookies || {}).length,
+      authHeader: !!req.headers.authorization 
+    });
+
     if (!token) {
       const authHeader = req.headers.authorization;
       if (authHeader && authHeader.startsWith("Bearer ")) {
@@ -19,10 +25,12 @@ export const authenticate: RequestHandler = (
     }
 
     if (!token) {
+      console.log('Auth Middleware: No token found');
       return res.status(401).json({ error: "No token provided" });
     }
 
     const decoded = verifyToken(token);
+    console.log('Auth Middleware: Token verified for user', decoded.userId);
 
     (req as AuthRequest).userId = decoded.userId;
     (req as AuthRequest).user = {
@@ -33,6 +41,7 @@ export const authenticate: RequestHandler = (
 
     next();
   } catch (error) {
+    console.error('Auth Middleware: Token verification failed', error);
     return res.status(401).json({ error: "Invalid or expired token" });
   }
 };
