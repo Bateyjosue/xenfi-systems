@@ -12,9 +12,30 @@ const PORT = process.env.PORT || 3001;
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
 
 // Middleware
+const allowedOrigins = [
+  "http://localhost:3000",
+  process.env.FRONTEND_URL,
+  "https://xenfi-systems.vercel.app",
+].filter(Boolean) as string[];
+
 app.use(
   cors({
-    origin: FRONTEND_URL,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      
+      // Check if origin matches allowed origins or Vercel preview URLs
+      const isAllowed = allowedOrigins.includes(origin) || 
+                       /^https:\/\/xenfi-systems-.*-bateyjosues-projects\.vercel\.app$/.test(origin) ||
+                       /^https:\/\/xenfi-systems-.*\.vercel\.app$/.test(origin);
+
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        console.log('Blocked by CORS:', origin);
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   })
 );
